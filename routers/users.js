@@ -35,14 +35,13 @@ router.post('/users/login', async (req, res) => {
 
     firebase.auth().signInWithEmailAndPassword(user.email, user.password)
     .then((data) => {
-        return data.user.getIdToken();
-    })
-    .then((token) => {
-        return res.status(200).json({ token });
+        data.user.getIdToken().then((token) => {
+          return res.status(200).json({ token });
+      })
     })
     .catch((error) => {
         return res.status(404).json({ error });
     })
 })
 
-export default router;
+module.exports = router;
