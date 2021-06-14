@@ -97,16 +97,16 @@ router.post('/todos', checkIfAuthenticated, async (req, res) => {
         completed
     } = req.body;
 
-    if (typeof title === 'undefined') {
-        return res.status(400).json({ error: 'Todo property "title" is required!' });
+    if (typeof title !== 'string') {
+        return res.status(400).json({ error: 'Todo property "title" is required and must be type of string!' });
     }
 
-    if (typeof date === 'undefined') {
-        return res.status(400).json({ error: 'Todo property "date" is required!' });
+    if (typeof date !== 'number') {
+        return res.status(400).json({ error: 'Todo property "date" is required and must be type of number!' });
     }
 
-    if (typeof completed === 'undefined') {
-        return res.status(400).json({ error: 'Todo property "completed" is required!' });
+    if (typeof completed !== 'boolean') {
+        return res.status(400).json({ error: 'Todo property "completed" is required and must be type of boolean!' });
     }
 
     const todo = {
@@ -149,17 +149,29 @@ router.patch('/todos/:id', checkIfAuthenticated, async (req, res) => {
     const todo = {}
 
     if (title) {
+        if (typeof title !== 'string') {
+            return res.status(400).json({ error: 'Todo property "title" is required and must be type of string!' });
+        }
+    
         todo['title'] = title;
     }
     if (date) {
+        if (typeof date !== 'number') {
+            return res.status(400).json({ error: 'Todo property "date" is required and must be type of number!' });
+        }
+
         todo['date'] = date;
     }
     if (completed) {
+        if (typeof completed !== 'boolean') {
+            return res.status(400).json({ error: 'Todo property "completed" is required and must be type of boolean!' });
+        }
+
         todo['completed'] = completed;
     }
 
     if (Object.keys(todo).length === 0) {
-        return res.status(400).json({ error: 'Expecting one of the following Todos properties: "title", "date", "completed"' });
+        return res.status(400).json({ error: 'Expecting following Todo properties: "title", "date", "completed"' });
     }
 
     return user.collection('todos').doc(req.params.id).update(todo)
