@@ -159,7 +159,7 @@ router.patch('/todos/:id', checkIfAuthenticated, async (req, res) => {
     }
 
     if (Object.keys(todo).length === 0) {
-        return res.status(400).json({ error: 'Expecting one of the following Todos property: "title", "date", "completed"' });
+        return res.status(400).json({ error: 'Expecting one of the following Todos properties: "title", "date", "completed"' });
     }
 
     return user.collection('todos').doc(req.params.id).update(todo)
