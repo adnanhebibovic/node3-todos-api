@@ -9,7 +9,7 @@ const todos = require('../fixtures/todos')
 let token;
 
 beforeAll(async () => {
-    await firebase.auth().signInWithEmailAndPassword('test@test.com', 'pa$$w0rd').then((credentials) => {
+    await firebase.auth().signInWithEmailAndPassword('adnan.hebibovic@test.com', 'ThisIsMyTestPassword123').then((credentials) => {
         credentials.user.getIdToken().then((result) => {
             token = result;
         })

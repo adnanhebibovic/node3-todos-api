@@ -37,7 +37,7 @@ router.get('/todos', checkIfAuthenticated, async (req, res) => {
         query = query.limit(parseInt(value.limit))    
     }
 
-    return query.get()
+    query.get()
         .then((snapshot) => {
             const todos = []
             snapshot.forEach((doc) => {
@@ -57,7 +57,7 @@ router.get('/todos', checkIfAuthenticated, async (req, res) => {
 router.get('/todos/:id', checkIfAuthenticated, async (req, res) => {
     const user = firestore.collection('users').doc(req.uid)
     
-    return user.collection('todos').doc(req.params.id).get()
+    user.collection('todos').doc(req.params.id).get()
         .then((doc) => {
             const todo = {
                 id: doc.id, 
@@ -80,7 +80,7 @@ router.post('/todos', checkIfAuthenticated, async (req, res) => {
         return res.status(400).json({ error });
     }
 
-    return user.collection('todos').add(value)
+    user.collection('todos').add(value)
     .then((doc) => {
         return res.status(201).json({
             id: doc.id,
@@ -94,7 +94,7 @@ router.post('/todos', checkIfAuthenticated, async (req, res) => {
 router.delete('/todos/:id', checkIfAuthenticated, async(req, res) => {
     const user = firestore.collection('users').doc(req.uid)
 
-    return user.collection('todos').doc(req.params.id).delete()
+    user.collection('todos').doc(req.params.id).delete()
     .then(() => {
         return res.status(200).json({ id: req.params.id });
     }).catch((error) => {
@@ -111,7 +111,7 @@ router.patch('/todos/:id', checkIfAuthenticated, async (req, res) => {
         return res.status(400).json({ error });
     }
 
-    return user.collection('todos').doc(req.params.id).update(value)
+    user.collection('todos').doc(req.params.id).update(value)
     .then(() => {
         user.collection('todos').doc(req.params.id).get()
         .then((doc) => {
