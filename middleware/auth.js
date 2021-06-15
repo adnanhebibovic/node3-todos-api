@@ -27,6 +27,4 @@ const checkIfAuthenticated = (req, res, next) => {
      });
    };
 
-module.exports = { 
-    checkIfAuthenticated 
-};
+module.exports = checkIfAuthenticated; 

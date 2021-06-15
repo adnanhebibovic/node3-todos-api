@@ -1,57 +1,40 @@
 const express = require('express')
 
 const { firestore } = require('../services/firebase')
-const { checkIfAuthenticated } = require('../middleware/auth');
+
+const checkIfAuthenticated = require('../middleware/auth');
+
+const todosSchema = require('../schemas/todos')
+const querySchema = require('../schemas/query')
 
 const router = new express.Router()
 
 router.get('/todos', checkIfAuthenticated, async (req, res) => {
     const user = firestore.collection('users').doc(req.uid)
 
+    const { error, value } = querySchema.validate(req.query);
+
+    if (error) {
+        return res.status(400).json({ error });
+    }
+
     let query = user.collection('todos'); 
 
-    if (req.query.completed) {
-        if (req.query.completed === 'true') {
-            query = query.where("completed", "==", true)
-        } else if (req.query.completed === 'false') {
-            query = query.where("completed", "==", false)
-        } else {
-            return res.status(400).json({ error: 'Invalid value for completed query. Expecting value: "true" or "false"' })
-        }
-        
+    if (value.completed) {
+        query = query.where("completed", "==", value.completed === 'true')
     }
-
-    if (req.query.sort) {
-        const sort = req.query.sort;
+    if (value.sort) {
         let order = 'asc'
-
-        if (req.query.order) {
-            if (req.query.order === 'asc') {
-                order = 'asc'
-            } else if (req.query.order === 'desc') {
-                order = 'desc'
-            } else {
-                return res.status(400).json({ error: 'Invalid value for order query. Expecting values: "asc" or "desc"' })
-            }
+        if (value.order) {
+            order = value.order
         }
-
-        query = query.orderBy(sort, order)
-
-        if (req.query.skip) {
-            if (!isNaN(req.query.skip)) {
-                query = query.startAfter(req.query.skip);
-            } else {
-                return res.status(400).json({ error: 'Invalid value for skip query. Expecting type of number' })
-            }
+        query = query.orderBy(value.sort, order)
+        if (value.skip) {
+            query = query.startAfter(parseInt(value.skip));
         }
     }
-
-    if (req.query.limit) {
-        if (!isNaN(req.query.limit)) {
-            query = query.limit(parseInt(req.query.limit))
-        } else {
-            return res.status(400).json({ error: 'Invalid value for limit query. Expecting type of number' })
-        }
+    if (value.limit) {
+        query = query.limit(parseInt(value.limit))    
     }
 
     return query.get()
@@ -91,35 +74,17 @@ router.get('/todos/:id', checkIfAuthenticated, async (req, res) => {
 router.post('/todos', checkIfAuthenticated, async (req, res) => {
     const user = firestore.collection('users').doc(req.uid)
 
-    const {
-        title,
-        date,
-        completed
-    } = req.body;
+    const { error, value } = todosSchema.tailor('post').validate(req.body);
 
-    if (typeof title !== 'string') {
-        return res.status(400).json({ error: 'Todo property "title" is required and must be type of string!' });
+    if (error) {
+        return res.status(400).json({ error });
     }
 
-    if (typeof date !== 'number') {
-        return res.status(400).json({ error: 'Todo property "date" is required and must be type of number!' });
-    }
-
-    if (typeof completed !== 'boolean') {
-        return res.status(400).json({ error: 'Todo property "completed" is required and must be type of boolean!' });
-    }
-
-    const todo = {
-        title,
-        date,
-        completed
-    }
-
-    return user.collection('todos').add(todo)
+    return user.collection('todos').add(value)
     .then((doc) => {
         return res.status(201).json({
             id: doc.id,
-            ...todo
+            ...value
         })
     }).catch((error) => {
         return res.status(500).json({ error });
@@ -140,41 +105,13 @@ router.delete('/todos/:id', checkIfAuthenticated, async(req, res) => {
 router.patch('/todos/:id', checkIfAuthenticated, async (req, res) => {
     const user = firestore.collection('users').doc(req.uid)
 
-    const {
-        title,
-        date,
-        completed
-    } = req.body;
+    const { error, value } = todosSchema.tailor('patch').validate(req.body);
 
-    const todo = {}
-
-    if (title) {
-        if (typeof title !== 'string') {
-            return res.status(400).json({ error: 'Todo property "title" is required and must be type of string!' });
-        }
-    
-        todo['title'] = title;
-    }
-    if (date) {
-        if (typeof date !== 'number') {
-            return res.status(400).json({ error: 'Todo property "date" is required and must be type of number!' });
-        }
-
-        todo['date'] = date;
-    }
-    if (completed) {
-        if (typeof completed !== 'boolean') {
-            return res.status(400).json({ error: 'Todo property "completed" is required and must be type of boolean!' });
-        }
-
-        todo['completed'] = completed;
+    if (error) {
+        return res.status(400).json({ error });
     }
 
-    if (Object.keys(todo).length === 0) {
-        return res.status(400).json({ error: 'Expecting following Todo properties: "title", "date", "completed"' });
-    }
-
-    return user.collection('todos').doc(req.params.id).update(todo)
+    return user.collection('todos').doc(req.params.id).update(value)
     .then(() => {
         user.collection('todos').doc(req.params.id).get()
         .then((doc) => {

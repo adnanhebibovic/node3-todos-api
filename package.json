@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "jest --setupFiles dotenv/config --detectOpenHandles"
+    "test": "jest --setupFiles dotenv/config"
   },
   "author": "",
   "license": "ISC",
@@ -15,6 +15,7 @@
     "firebase": "^8.6.5",
     "firebase-admin": "^9.9.0",
     "jest": "^27.0.4",
+    "joi": "^17.4.0",
     "supertest": "^6.1.3"
   }
 }
