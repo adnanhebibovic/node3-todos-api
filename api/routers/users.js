@@ -3,6 +3,8 @@ const express = require('express')
 const { firebase, admin } = require('../services/firebase')
 const userSchema = require('../schemas/users')
 
+const checkIfAuthenticated = require('../middleware/auth');
+
 const router = new express.Router()
 
 router.post('/users/signup', async (req, res) => {
