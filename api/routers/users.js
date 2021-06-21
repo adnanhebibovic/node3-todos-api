@@ -63,7 +63,7 @@ router.post('/users/login', async (req, res) => {
 })
 
 router.get('/users/me', checkIfAuthenticated, async (req, res) => {
-    firestore.collection('users').doc(req.uid).get().then((user) => {
+    admin.auth().getUser(req.uid).then((user) => {
         return res.status(200).json({ user })
     }).catch((error) => {
         return res.status(500).json({ error })
