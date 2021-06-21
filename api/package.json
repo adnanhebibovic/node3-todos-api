@@ -1,0 +1,22 @@
+{
+  "name": "todo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "jest --setupFiles dotenv/config"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "firebase": "^8.6.5",
+    "firebase-admin": "^9.9.0",
+    "jest": "^27.0.4",
+    "joi": "^17.4.0",
+    "supertest": "^6.1.3"
+  }
+}
